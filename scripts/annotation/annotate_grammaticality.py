@@ -5,7 +5,6 @@ import torch
 import pandas as pd
 
 from eval import load_childes_grammar_model, compute_scores_childes_grammaticality
-from utilities import CONVERSATIONS_ANNOTATED_DATA_FILE
 
 BATCH_SIZE = 100
 
@@ -35,7 +34,7 @@ def get_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--eval_model_path", type=str, required=True)
-    parser.add_argument("--data_path", type=str, default=CONVERSATIONS_ANNOTATED_DATA_FILE)
+    parser.add_argument("--data_path", type=str)
 
     return parser.parse_args()
 
