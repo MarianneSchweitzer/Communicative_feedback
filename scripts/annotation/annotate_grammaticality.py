@@ -34,7 +34,7 @@ def get_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--eval_model_path", type=str, required=True)
-    parser.add_argument("--data_path", type=str)
+    parser.add_argument("--data_path", type=str, required=True)
 
     return parser.parse_args()
 
