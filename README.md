@@ -6,11 +6,11 @@
 python prepare_conversation_pairs_with_subjects.py --data_path utterances.csv --subjects_path subjects.csv
 
 ```
-This script produces 5 different caregiver-children conversation data files : one with children without brain lesions, one with children with (right and left hemisphere) lesions, one with left hemisphere lesion children, one with right hemisphere lesion children and one with all of the children. 
+This step produces five caregiver–child conversation datasets: children without brain lesions, children with brain lesions (all), children with left hemisphere lesions, children with right hemisphere lesions, all children combined.
 
 ## Annotation
 
-TBD with each data file if needed.  
+Prepare conversation datasets and generate grouped corpora. 
 
 Clarification request annotation:
 
