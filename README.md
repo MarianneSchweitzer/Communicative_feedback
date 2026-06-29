@@ -12,21 +12,21 @@ This script produces 5 different caregiver-children conversation data files : on
 
 TBD with each data file if needed.  
 
-Clarification request annotation :
+Clarification request annotation:
 
 ```
 python annotate_cf.py --data_path conversation_pairs_prepared_all.csv 
 
 ```
 
-Semantic & syntactic alignment annotation
+Semantic & syntactic alignment annotation:
 
 ```
 python annotate_syntactic_semantic_alignment.py --input_path conversation_pairs_prepared_all.csv 
 
 ```
 
-Grammaticality annotation 
+Grammaticality annotation:
 
 ```
 python annotate_grammaticality.py --eval_model_path models/version_19 --data_path conversation_pairs_prepared_all.csv
