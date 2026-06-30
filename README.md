@@ -58,3 +58,9 @@ python create_alignment_contingency_results_plot.py --data_path annotated_conver
 python create_lm_corpus.py --input conversation_pairs_all_groups_annotated.csv --output caregiver_utterances_all_groups.csv
 
 ```
+## Train LM Baseline
+
+```
+python train_lm.py fit --trainer.devices [0] --trainer.accelerator gpu --trainer.logger=WandbLogger --trainer.logger.name baseline_lesion_corpus --data.lm_data_path caregiver_utterances_all_groups.csv
+
+```
