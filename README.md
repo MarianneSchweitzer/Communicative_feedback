@@ -29,7 +29,7 @@ python annotate_syntactic_semantic_alignment.py --input_path conversation_pairs_
 Grammaticality annotation:
 
 ```
-python annotate_grammaticality.py --eval_model_path ../../models/version_19 --data_path conversation_pairs_prepared_all.csv
+python annotate_grammaticality.py --eval_model_path ../../models/grammar_eval/version_19 --data_path conversation_pairs_prepared_all.csv
 
 ```
 
