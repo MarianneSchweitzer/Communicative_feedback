@@ -1,3 +1,5 @@
+This work is expanding the work of Nikolaus & Fourtassi (2026) and is partly based on the following repo : https://github.com/mitjanikolaus/lm_feedback
+
 # Analysis of contingency of feedback
 
 ## Data pre-processing
