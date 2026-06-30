@@ -48,3 +48,13 @@ Results plotting for semantic and syntactic alignment:
 python create_alignment_contingency_results_plot.py --data_path annotated_conversations.csv 
 
 ```
+
+# Analysis of effect of caregiver feedback on learning (typical & atypical children)
+
+## Caregiver utterances preparation
+
+
+```
+python create_lm_corpus.py --input conversation_pairs_all_groups_annotated.csv --output caregiver_utterances_all_groups.csv
+
+```
