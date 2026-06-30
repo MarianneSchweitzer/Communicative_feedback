@@ -38,7 +38,7 @@ python annotate_grammaticality.py --eval_model_path ../../models/grammar_eval/ve
 Results plotting for clarification requests:
 
 ```
-python TODO
+python create_cr_contingency_results_plot.py --data_path annotated_conversations.csv 
 
 ```
 
