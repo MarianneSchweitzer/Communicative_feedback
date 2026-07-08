@@ -12,8 +12,6 @@ This step produces five caregiver–child conversation datasets: children withou
 
 ## Annotation
 
-Prepare conversation datasets and generate grouped corpora. 
-
 Clarification request annotation:
 
 ```
@@ -30,7 +28,7 @@ python annotate_syntactic_semantic_alignment.py --input_path conversation_pairs_
 Syntactic alignment annotation (manual annotation):
 
 ```
-python TODO 
+python annotate_syntactic_alignment_from_mor_tags.py --input_path conversation_pairs_prepared_all.csv
 
 ```
 
