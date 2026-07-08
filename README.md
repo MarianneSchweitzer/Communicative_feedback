@@ -5,7 +5,7 @@ This project is expanding the work of Nikolaus & Fourtassi (2026) and is partly 
 ## Data pre-processing
 
 ```
-python prepare_conversation_pairs_with_subjects.py --data_path utterances.csv --subjects_path subjects.csv
+python prepare_conversation_pairs.py --data_path utterances.csv --subjects_path subjects.csv
 
 ```
 This step produces five caregiver–child conversation datasets: children without brain lesions, children with brain lesions (all), children with left hemisphere lesions, children with right hemisphere lesions, all children combined.
@@ -21,10 +21,16 @@ python annotate_cf.py --data_path conversation_pairs_prepared_all.csv
 
 ```
 
-Semantic & syntactic alignment annotation:
+Semantic & syntactic alignment annotation (automatic annotation for syntax):
 
 ```
 python annotate_syntactic_semantic_alignment.py --input_path conversation_pairs_prepared_all.csv 
+
+```
+Syntactic alignment annotation (based on manual annotation of the corpus):
+
+```
+python TODO 
 
 ```
 
@@ -44,7 +50,19 @@ python create_cr_contingency_results_plot.py --data_path annotated_conversations
 
 ```
 
-Results plotting for semantic and syntactic alignment:
+Results plotting for syntactic alignment:
+
+```
+python create_syntactic_alignment_contingency_results_plot.py --data_path annotated_conversations.csv 
+
+```
+Results plotting for semantic alignment:
+
+```
+python create_semantic_alignment_contingency_results_plot.py --data_path annotated_conversations.csv 
+
+```
+Results plotting for both syntactic and semantic alignment:
 
 ```
 python create_alignment_contingency_results_plot.py --data_path annotated_conversations.csv 
