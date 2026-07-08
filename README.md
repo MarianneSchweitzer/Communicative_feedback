@@ -27,7 +27,7 @@ Semantic & syntactic alignment annotation (automatic annotation for syntax):
 python annotate_syntactic_semantic_alignment.py --input_path conversation_pairs_prepared_all.csv 
 
 ```
-Syntactic alignment annotation (based on manual annotation of the corpus):
+Syntactic alignment annotation (manual annotation):
 
 ```
 python TODO 
