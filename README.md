@@ -84,7 +84,7 @@ python train_lm.py fit --trainer.devices [0] --trainer.accelerator gpu --trainer
 ```
 # Train reward models 
 
-Replace --reward_column_name by "align_syntactic" or "align_semantic" if you want to train rewards based on syntactic or semantic alignment (as well as the output directory). 
+Replace --reward_column_name by "align_syntactic" or "align_semantic" if you want to train rewards based on syntactic or semantic alignment (as well as the output directory). The input files should be child-caregiver utterances for each condition (lesion & no lesion) with annotations for clarification requests as well as syntactic and semantic alignment. 
 
 ## Children without lesions
 
