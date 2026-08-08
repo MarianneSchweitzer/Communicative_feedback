@@ -82,11 +82,11 @@ python create_lm_corpus.py --input conversation_pairs_all_groups_annotated.csv -
 python train_lm.py fit --trainer.devices [0] --trainer.accelerator gpu --trainer.logger=WandbLogger --trainer.logger.name baseline_lesion_corpus --data.lm_data_path caregiver_utterances_all_groups.csv
 
 ```
-# Train reward models 
+### Train reward models 
 
 Replace --reward_column_name by "align_syntactic" or "align_semantic" if you want to train rewards based on syntactic or semantic alignment (as well as the output directory). The input files should be child-caregiver utterances for each condition (lesion & no lesion) with annotations for clarification requests as well as syntactic and semantic alignment. 
 
-## Children without lesions
+### Children without lesions
 
 ```
 
