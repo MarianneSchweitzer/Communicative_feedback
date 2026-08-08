@@ -82,3 +82,22 @@ python create_lm_corpus.py --input conversation_pairs_all_groups_annotated.csv -
 python train_lm.py fit --trainer.devices [0] --trainer.accelerator gpu --trainer.logger=WandbLogger --trainer.logger.name baseline_lesion_corpus --data.lm_data_path caregiver_utterances_all_groups.csv
 
 ```
+# Train reward models 
+
+Replace --reward_column_name by "align_syntactic" or "align_semantic" if you want to train rewards based on syntactic or semantic alignment (as well as the output directory). 
+
+## Children without lesions
+
+```
+
+python train_reward.py   --model_name_or_path microsoft/deberta-v3-xsmall   --output_dir reward_models/no_lesion/is_cr   --data_paths annotated_alignment/conversation_pairs_no_lesion_annotated_grammar_syntactic_semantic_alignment.csv   --reward_column_name is_cr
+
+```
+
+## Children with lesions
+
+```
+
+python train_reward.py   --model_name_or_path microsoft/deberta-v3-xsmall   --output_dir reward_models/lesion/is_cr   --data_paths annotated_alignment/conversation_pairs_lesion_annotated_grammar_syntactic_semantic_alignment.csv   --reward_column_name is_cr
+
+```
