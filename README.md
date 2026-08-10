@@ -103,7 +103,7 @@ python train_reward.py   --model_name_or_path microsoft/deberta-v3-xsmall   --ou
 ```
 ## Finetune LM using PPO
 
-To fietune baseline with different rewards, change --value_model directory (3 possibilities : semantic or syntactic or cr). 
+The example is set to clarification requests as a reward. To finetune baseline with different rewards, change --value_model directory (3 possibilities : semantic or syntactic or cr). 
 
 ### Children without lesions
 
