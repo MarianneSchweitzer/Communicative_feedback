@@ -101,3 +101,22 @@ python train_reward.py   --model_name_or_path microsoft/deberta-v3-xsmall   --ou
 python train_reward.py   --model_name_or_path microsoft/deberta-v3-xsmall   --output_dir reward_models/lesion/is_cr   --data_paths annotated_alignment/conversation_pairs_lesion_annotated_grammar_syntactic_semantic_alignment.csv   --reward_column_name is_cr
 
 ```
+## Finetune LM using PPO
+
+To fietune baseline with different rewards, change --value_model directory (3 possibilities : semantic or syntactic or cr). 
+
+### Children without lesions
+
+```
+
+python train_ppo.py --policy_model lightning_logs/nhnhjuyf/ckpt_huggingface_best --value_model reward_models/no_lesion/cr
+
+```
+
+### Children with lesions
+
+```
+
+python train_ppo.py --policy_model lightning_logs/nhnhjuyf/ckpt_huggingface_best --value_model reward_models/lesion/cr
+
+```
