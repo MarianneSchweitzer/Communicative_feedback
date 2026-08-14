@@ -120,3 +120,9 @@ python train_ppo.py --policy_model lightning_logs/nhnhjuyf/ckpt_huggingface_best
 python train_ppo.py --policy_model lightning_logs/nhnhjuyf/ckpt_huggingface_best --value_model reward_models/lesion/cr
 
 ```
+## Evaluation
+
+```
+python eval.py --model_path lightning_logs/nhnhjuyf/ckpt_huggingface_best --eval_model_path models/grammar_eval/version_19 --word_info_path word_info.csv --func_info_path func_info.csv --output_utts_csv results/baseline/utterances.csv --output_csv results/baseline_results.csv
+
+```
