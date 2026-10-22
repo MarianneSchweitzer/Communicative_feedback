@@ -15,7 +15,7 @@ This step produces five caregiver–child conversation datasets: children withou
 Clarification request annotation:
 
 ```
-python annotate_cf.py --data_path conversation_pairs_prepared_all.csv 
+python annotate_cf.py --model models/cr_classifier/checkpoint-200 --target_column is_cr --data_path conversation_pairs_prepared_all.csv 
 
 ```
 
