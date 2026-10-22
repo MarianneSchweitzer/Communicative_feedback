@@ -30,7 +30,7 @@ COLUMN_RENAMES = {
 def print_basic_diagnostics(data: pd.DataFrame) -> None:
     """Print useful checks before dropping missing rows."""
     diagnostic_cols = [
-        col for col in ["is_cr", "is_grammatical", "transcript_file", "subject", "session"]
+        col for col in ["is_cr", "is_grammatical", "subject", "session", "age"]
         if col in data.columns
     ]
 
@@ -48,61 +48,17 @@ def print_basic_diagnostics(data: pd.DataFrame) -> None:
         print("\nValue counts for is_grammatical before filtering:")
         print(data["is_grammatical"].value_counts(dropna=False))
 
-    if "transcript_file" in data.columns:
-        print("\nFirst transcript_file values before filtering:")
-        print(data["transcript_file"].head(10))
-        print("\nNumber of distinct transcript_file values before filtering:")
-        print(data["transcript_file"].nunique(dropna=True))
-
-
-def ensure_transcript_file(data: pd.DataFrame) -> pd.DataFrame:
-    """
-    Ensure there is a usable transcript_file column for the random intercept.
-
-    In some prepared CSVs, transcript_file was created from the original 'tape'
-    column. If that column was empty, transcript_file is empty too. In that case,
-    we reconstruct a transcript/session identifier from subject + session.
-    """
-    data = data.copy()
-
-    transcript_missing_or_empty = (
-        "transcript_file" not in data.columns
-        or data["transcript_file"].isna().all()
-        or data["transcript_file"].astype(str).str.strip().replace({"nan": ""}).eq("").all()
-    )
-
-    if transcript_missing_or_empty:
-        if {"subject", "session"}.issubset(data.columns):
-            print(
-                "\ntranscript_file is missing or entirely empty. "
-                "Creating transcript_file from subject + session."
-            )
-
-            subject_str = data["subject"].astype("Int64").astype(str)
-            session_str = data["session"].astype("Int64").astype(str)
-
-            data["transcript_file"] = "subj_" + subject_str + "_sess_" + session_str
-        else:
-            raise ValueError(
-                "transcript_file is missing/empty, and subject/session columns are not "
-                "available to reconstruct it."
-            )
-    else:
-        # Normalize existing transcript IDs to strings.
-        data["transcript_file"] = data["transcript_file"].astype(str).str.strip()
-
-    return data
-
 
 def clean_and_validate_data(data: pd.DataFrame) -> pd.DataFrame:
-    """Rename columns, reconstruct transcript_file if needed, drop unusable rows, and validate values."""
+    """Rename columns, drop unusable rows, and validate values."""
     data = data.rename(columns=COLUMN_RENAMES)
-    data = ensure_transcript_file(data)
 
     required_columns = [
         "is_cr",
         "is_grammatical",
-        "transcript_file",
+        "subject",
+        "session",
+        "age",
     ]
 
     missing_columns = [col for col in required_columns if col not in data.columns]
@@ -110,18 +66,13 @@ def clean_and_validate_data(data: pd.DataFrame) -> pd.DataFrame:
     if missing_columns:
         raise ValueError(
             f"\nMissing required columns: {missing_columns}\n"
-            f"Available columns are: {data.columns.tolist()}\n\n"
-            "This script expects an annotated CSV with at least:\n"
-            "- is_cr: 1 for clarification request, 0 otherwise\n"
-            "- is_grammatical: -1 ungrammatical, 0 ambiguous, 1 grammatical\n"
-            "- transcript_file: transcript/session identifier\n"
-            "  If transcript_file is empty, subject + session can be used to rebuild it.\n"
+            f"Available columns are: {data.columns.tolist()}\n"
         )
 
     print_basic_diagnostics(data)
 
     before_drop = len(data)
-    data = data.dropna(subset=["is_cr", "is_grammatical", "transcript_file"]).copy()
+    data = data.dropna(subset=["is_cr", "is_grammatical", "subject", "session", "age"]).copy()
     after_drop = len(data)
 
     if before_drop != after_drop:
@@ -129,28 +80,28 @@ def clean_and_validate_data(data: pd.DataFrame) -> pd.DataFrame:
 
     if data.empty:
         raise ValueError(
-            "\nNo rows left after dropping missing values in "
-            "is_cr, is_grammatical, and transcript_file.\n"
+            "\nNo rows left after dropping missing values.\n"
             "The model cannot be fitted. Check the diagnostics printed above."
         )
 
-    # Convert labels to numeric safely.
     data["is_cr"] = pd.to_numeric(data["is_cr"], errors="coerce")
     data["is_grammatical"] = pd.to_numeric(data["is_grammatical"], errors="coerce")
+    data["age"] = pd.to_numeric(data["age"], errors="coerce")
 
     before_numeric_drop = len(data)
-    data = data.dropna(subset=["is_cr", "is_grammatical"]).copy()
+    data = data.dropna(subset=["is_cr", "is_grammatical", "age"]).copy()
     after_numeric_drop = len(data)
 
     if before_numeric_drop != after_numeric_drop:
         print(
             f"\nDropped {before_numeric_drop - after_numeric_drop} rows "
-            "whose is_cr/is_grammatical values could not be converted to numbers."
+            "whose is_cr/is_grammatical/age values could not be converted to numbers."
         )
 
     data["is_cr"] = data["is_cr"].astype(int)
     data["is_grammatical"] = data["is_grammatical"].astype(int)
-    data["transcript_file"] = data["transcript_file"].astype(str)
+    data["subject"] = data["subject"].astype(str)
+    data["session"] = data["session"].astype(str)
 
     allowed_cr_values = {0, 1}
     observed_cr_values = set(data["is_cr"].unique())
@@ -170,14 +121,16 @@ def clean_and_validate_data(data: pd.DataFrame) -> pd.DataFrame:
             "Expected only -1, 0, and 1."
         )
 
-    n_transcripts = data["transcript_file"].nunique()
+    n_subjects = data["subject"].nunique()
+    n_sessions = data.groupby("subject")["session"].nunique().sum()
     print("\nRows after filtering:", len(data))
-    print("Number of transcript_file groups:", n_transcripts)
+    print("Number of subjects:", n_subjects)
+    print("Number of sessions (total):", n_sessions)
 
-    if n_transcripts < 2:
+    if n_subjects < 2:
         raise ValueError(
-            "The mixed-effects model needs at least two transcript_file groups. "
-            f"Only found {n_transcripts}."
+            "The mixed-effects model needs at least two subjects. "
+            f"Only found {n_subjects}."
         )
 
     return data
@@ -201,15 +154,16 @@ def print_annotation_stats(data: pd.DataFrame) -> None:
     print(data.sample(n_samples, random_state=42))
 
 
-def fit_mixed_model(data: pd.DataFrame):
-    """Fit mixed-effects logistic regression."""
+def fit_mixed_model(data: pd.DataFrame, output_dir: Path):
+    """Fit mixed-effects logistic regression and save results."""
     model_data = data.copy()
 
-    # pymer4/lme4 binomial models work cleanly with boolean or 0/1 outcomes.
     model_data["is_cr"] = model_data["is_cr"].astype(bool)
 
+    formula = "is_cr ~ is_grammatical + age + (1 | subject/session)"
+
     mod = Lmer(
-        "is_cr ~ is_grammatical + (1 | transcript_file)",
+        formula,
         family="binomial",
         data=model_data,
     )
@@ -226,23 +180,31 @@ def fit_mixed_model(data: pd.DataFrame):
     else:
         print(fitted)
 
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    results = fitted.copy()
+    results.insert(0, "model", formula)
+    stats_path = output_dir / "mixed_effects_cr.csv"
+    results.to_csv(stats_path, index=True)
+
+    print(f"\nSaved stats to: {stats_path}")
+
     return fitted
 
 
-def build_transcript_level_proportions(data: pd.DataFrame, min_transcript_rows: int) -> pd.DataFrame:
-    """Build transcript-level CR proportions for each grammaticality class."""
+def build_session_level_proportions(data: pd.DataFrame, min_session_rows: int) -> pd.DataFrame:
+    """Build session-level CR proportions for each grammaticality class."""
     entries = []
 
-    for transcript_file in tqdm(data["transcript_file"].unique()):
-        data_transcript = data[data["transcript_file"] == transcript_file]
+    session_groups = data.groupby(["subject", "session"])
 
-        # Keep only sufficiently large transcripts.
-        if len(data_transcript) <= min_transcript_rows:
+    for (subject, session), data_session in tqdm(session_groups, total=len(session_groups)):
+        if len(data_session) <= min_session_rows:
             continue
 
         for is_grammatical in [-1, 0, 1]:
-            data_filtered = data_transcript[
-                data_transcript["is_grammatical"] == is_grammatical
+            data_filtered = data_session[
+                data_session["is_grammatical"] == is_grammatical
             ]
 
             if len(data_filtered) == 0:
@@ -255,20 +217,21 @@ def build_transcript_level_proportions(data: pd.DataFrame, min_transcript_rows: 
                     "is_cr": "clarification request" if is_cr == 1 else "other",
                     "grammaticality": GRAMMAR_LABELS[is_grammatical],
                     "proportion": proportion,
-                    "transcript_file": transcript_file,
-                    "n_rows_transcript": len(data_transcript),
+                    "subject": subject,
+                    "session": session,
+                    "n_rows_session": len(data_session),
                     "n_rows_condition": len(data_filtered),
                 })
 
     df = pd.DataFrame(entries)
 
     if df.empty:
-        transcript_sizes = data["transcript_file"].value_counts()
+        session_sizes = session_groups.size().sort_values(ascending=False)
         raise ValueError(
-            "No transcript-level entries were created. "
-            f"This may mean that no transcript has more than {min_transcript_rows} rows.\n\n"
-            "Largest transcript sizes:\n"
-            f"{transcript_sizes.head(20)}"
+            "No session-level entries were created. "
+            f"This may mean that no session has more than {min_session_rows} rows.\n\n"
+            "Largest session sizes:\n"
+            f"{session_sizes.head(20)}"
         )
 
     return df
@@ -331,11 +294,11 @@ def create_results_plot(args):
 
     print_annotation_stats(data)
 
-    fit_mixed_model(data)
+    fit_mixed_model(data, output_dir=Path(args.output_dir))
 
-    df = build_transcript_level_proportions(
+    df = build_session_level_proportions(
         data=data,
-        min_transcript_rows=args.min_transcript_rows,
+        min_session_rows=args.min_session_rows,
     )
 
     grammar_order = ["grammatical", "ungrammatical"]
@@ -393,10 +356,10 @@ def get_args():
     )
 
     parser.add_argument(
-        "--min_transcript_rows",
+        "--min_session_rows",
         type=int,
         default=100,
-        help="Minimum number of rows required for a transcript to be included in the plot.",
+        help="Minimum number of rows required for a session to be included in the plot.",
     )
 
     return parser.parse_args()
